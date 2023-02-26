@@ -1,3 +1,8 @@
+#include "locker.h"
+
+void setRandomSeed(char* seed, int len) {
+
+}
 
 unsigned char random() {
 
@@ -8,7 +13,7 @@ unsigned char slide(unsigned char a, unsigned char pos) {
 }
 
 unsigned char deSlide(unsigned char a, unsigned char pos) {
-
+	
 }
 
 const int MIX_TURN = 16;
