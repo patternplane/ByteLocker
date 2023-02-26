@@ -58,7 +58,7 @@ int main() {
 			printf("입력한 경로의 파일을 열 수 없습니다!\n");
 		printf("입력파일의 경로를 입력하세요 : \n  ");
 		scanf_s("%s", inputPath, sizeof(inputPath));
-	} while ((fopenValue = fopen_s(&inputFile, "", "r")) != 0);
+	} while ((fopenValue = fopen_s(&inputFile, inputPath, "r")) != 0);
 	
 	fopenValue = 0;
 	strcmpValue = 1;
@@ -70,7 +70,7 @@ int main() {
 		printf("출력파일의 경로를 입력하세요 : \n  ");
 		scanf_s("%s", outputPath, sizeof(outputPath));
 	} while ((strcmpValue = strcmp(inputPath,outputPath)) == 0 
-		|| (fopenValue = fopen_s(&outputFile, "", "w")) != 0);
+		|| (fopenValue = fopen_s(&outputFile, outputPath, "w")) != 0);
 
 	printf("파일 암호 키를 입력하세요 :\n  ");
 	scanf_s("%s",seedString,sizeof(seedString));
