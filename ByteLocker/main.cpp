@@ -1,50 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "locker.h"
 
 // strcmp 버퍼 벗어남 취약요소
 // malloc 성공실패 미구분 취약요소
+// 문자열 받을때 마지막이 null이 아닐 수 있는 취약요소
 
-unsigned char random() {
-
-}
-
-unsigned char slide(unsigned char a, int pos) {
-
-}
-
-unsigned char deSlide(unsigned char a, int pos) {
-
-}
-
-const int MIX_TURN = 16;
-const int RANDOM_USING_COUNT = MIX_TURN * 2;
-
-void byteSpliter(char* data, int size) {
-	for (int i = 0; i < size; i++)
-		for (int k = 0; k < MIX_TURN; k++) {
-			data[i] = slide(data[i], random());
-			data[i] = data[i] ^ random();
-		}
-}
-
-unsigned char randoms[RANDOM_USING_COUNT];
-void byteRestorer(char* data, int size) {
-	for (int i = 0; i < size; i++) {
-		for (int k = 0; k < RANDOM_USING_COUNT; k++)
-			randoms[k] = random();
-		for (int k = RANDOM_USING_COUNT - 1; k >= 0;) {
-			data[i] = data[i] ^ randoms[k--];
-			data[i] = deSlide(data[i], randoms[k--]);
-		}
-	}
-}
-
-void byteLocker(FILE* inputfp, FILE* outputfp) {
+void byteLocker(FILE* inputfp, FILE* outputfp, char* seedString, int seedLen) {
 	int dataSize = 1024 * 1024 * 256; // 256MiB
 	char* data = (char*)malloc(dataSize * sizeof(char));
 	int readSize = 0;
 	int writeSize = 0;
+
+	setRandomSeed(seedString, seedLen);
 
 	while (true) {
 		readSize = fread(data, sizeof(char), dataSize, inputfp);
@@ -89,7 +58,7 @@ int main() {
 			printf("입력한 경로의 파일을 열 수 없습니다!\n");
 		printf("입력파일의 경로를 입력하세요 : \n  ");
 		scanf_s("%s", inputPath, sizeof(inputPath));
-	} while ((fopenValue = fopen_s(&inputFile, "", "r")) != 0);
+	} while ((fopenValue = fopen_s(&inputFile, inputPath, "r")) != 0);
 	
 	fopenValue = 0;
 	strcmpValue = 1;
@@ -101,12 +70,12 @@ int main() {
 		printf("출력파일의 경로를 입력하세요 : \n  ");
 		scanf_s("%s", outputPath, sizeof(outputPath));
 	} while ((strcmpValue = strcmp(inputPath,outputPath)) == 0 
-		|| (fopenValue = fopen_s(&outputFile, "", "w")) != 0);
+		|| (fopenValue = fopen_s(&outputFile, outputPath, "w")) != 0);
 
 	printf("파일 암호 키를 입력하세요 :\n  ");
 	scanf_s("%s",seedString,sizeof(seedString));
 
-	byteLocker(inputFile, outputFile);
+	byteLocker(inputFile, outputFile, seedString, strlen(seedString));
 
 	printf("데이터 암호화를 성공적으로 완료했습니다.");
 	fclose(inputFile);
