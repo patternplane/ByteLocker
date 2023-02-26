@@ -1,14 +1,13 @@
-#include "locker.h"
 
 unsigned char random() {
 
 }
 
-unsigned char slide(unsigned char a, int pos) {
-
+unsigned char slide(unsigned char a, unsigned char pos) {
+	
 }
 
-unsigned char deSlide(unsigned char a, int pos) {
+unsigned char deSlide(unsigned char a, unsigned char pos) {
 
 }
 
