@@ -5,12 +5,15 @@
 
 // strcmp 버퍼 벗어남 취약요소
 // malloc 성공실패 미구분 취약요소
+// 문자열 받을때 마지막이 null이 아닐 수 있는 취약요소
 
-void byteLocker(FILE* inputfp, FILE* outputfp) {
+void byteLocker(FILE* inputfp, FILE* outputfp, char* seedString, int seedLen) {
 	int dataSize = 1024 * 1024 * 256; // 256MiB
 	char* data = (char*)malloc(dataSize * sizeof(char));
 	int readSize = 0;
 	int writeSize = 0;
+
+	setRandomSeed(seedString, seedLen);
 
 	while (true) {
 		readSize = fread(data, sizeof(char), dataSize, inputfp);
@@ -72,7 +75,7 @@ int main() {
 	printf("파일 암호 키를 입력하세요 :\n  ");
 	scanf_s("%s",seedString,sizeof(seedString));
 
-	byteLocker(inputFile, outputFile);
+	byteLocker(inputFile, outputFile, seedString, strlen(seedString));
 
 	printf("데이터 암호화를 성공적으로 완료했습니다.");
 	fclose(inputFile);
