@@ -16,6 +16,7 @@ void byteLocker(FILE* inputfp, FILE* outputfp, char* seedString, int seedLen, by
 
 	setRandomSeed(seedString, seedLen);
 
+	KBCount = 0;
 	while (true) {
 		readSize = fread(data, sizeof(char), dataSize, inputfp);
 		if (readSize != dataSize)
