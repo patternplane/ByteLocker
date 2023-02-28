@@ -7,7 +7,8 @@
 // malloc 성공실패 미구분 취약요소
 // 문자열 받을때 마지막이 null이 아닐 수 있는 취약요소
 
-void byteLocker(FILE* inputfp, FILE* outputfp, char* seedString, int seedLen) {
+int KBCount;
+void byteLocker(FILE* inputfp, FILE* outputfp, char* seedString, int seedLen, byteOperator* byteFunction) {
 	int dataSize = 1024 * 1024 * 256; // 256MiB
 	char* data = (char*)malloc(dataSize * sizeof(char));
 	int readSize = 0;
@@ -28,7 +29,7 @@ void byteLocker(FILE* inputfp, FILE* outputfp, char* seedString, int seedLen) {
 		if (readSize == 0)
 			break;
 		
-		byteSpliter(data, readSize);
+		(*byteFunction)(data, readSize);
 
 		writeSize = fwrite(data, sizeof(char), readSize, outputfp);
 		if (writeSize != readSize) {
@@ -38,6 +39,9 @@ void byteLocker(FILE* inputfp, FILE* outputfp, char* seedString, int seedLen) {
 			fclose(outputfp);
 			exit(1);
 		}
+
+		KBCount += readSize;
+		printf("%dByte (총 %.2fKB) 완료\n", readSize, KBCount/1024.0);
 	}
 
 	free(data);
@@ -57,8 +61,9 @@ int main() {
 		if (fopenValue != 0)
 			printf("입력한 경로의 파일을 열 수 없습니다!\n");
 		printf("입력파일의 경로를 입력하세요 : \n  ");
-		scanf_s("%s", inputPath, sizeof(inputPath));
-	} while ((fopenValue = fopen_s(&inputFile, inputPath, "r")) != 0);
+		gets_s(inputPath);
+		fflush(stdin);
+	} while ((fopenValue = fopen_s(&inputFile, inputPath, "rb")) != 0);
 	
 	fopenValue = 0;
 	strcmpValue = 1;
@@ -68,18 +73,32 @@ int main() {
 		if (strcmpValue == 0)
 			printf("출력파일은 입력파일과 같을 수 없습니다!\n");
 		printf("출력파일의 경로를 입력하세요 : \n  ");
-		scanf_s("%s", outputPath, sizeof(outputPath));
+		gets_s(outputPath);
+		fflush(stdin);
 	} while ((strcmpValue = strcmp(inputPath,outputPath)) == 0 
-		|| (fopenValue = fopen_s(&outputFile, outputPath, "w")) != 0);
+		|| (fopenValue = fopen_s(&outputFile, outputPath, "wb")) != 0);
 
 	printf("파일 암호 키를 입력하세요 :\n  ");
-	scanf_s("%s",seedString,sizeof(seedString));
+	gets_s(seedString);
+	fflush(stdin);
 
-	byteLocker(inputFile, outputFile, seedString, strlen(seedString));
+	int value;
+	printf("파일을 암호화하려면 1을, 파일을 복호화하려면 0(또는 다른 값)을 입력하세요 :\n  ");
+	scanf_s("%d",&value);
 
-	printf("데이터 암호화를 성공적으로 완료했습니다.");
+	byteOperator byteFunc;
+	if (value == 1)
+		byteFunc = byteSpliter;
+	else
+		byteFunc = byteRestorer;
+
+	byteLocker(inputFile, outputFile, seedString, strlen(seedString), &byteFunc);
+
+	printf("데이터 암/복호화를 성공적으로 완료했습니다.\n\n");
 	fclose(inputFile);
 	fclose(outputFile);
+
+	system("pause");
 
 	return 0;
 }
