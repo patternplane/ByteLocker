@@ -11,7 +11,7 @@ unsigned char slide(unsigned char a, unsigned char pos) {
 }
 
 unsigned char deSlide(unsigned char a, unsigned char pos) {
-	slide(a, 8 - (pos % 8));
+	return slide(a, 8 - (pos % 8));
 }
 
 const int MIX_TURN = 16;
