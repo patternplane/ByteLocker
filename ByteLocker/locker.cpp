@@ -15,27 +15,44 @@ unsigned char deSlide(unsigned char a, unsigned char pos) {
 }
 
 const int MIX_TURN = 16;
-const int RANDOM_USING_COUNT = MIX_TURN * 2;
+const int RANDOM_USING_COUNT = 64;
 
 void byteSpliter(char* data, int size) {
+	unsigned char randomV;
+	int randomUsing = 0;
+	randomV = random();
 	for (int i = 0; i < size; i++) {
-		printf("%dByte Done\n", i + 1);
-		for (int k = 0; k < MIX_TURN; k++) {
-			data[i] = slide(data[i], random());
-			data[i] = data[i] ^ random();
+		if (randomUsing == RANDOM_USING_COUNT) {
+			randomUsing = 0;
+			randomV = random();
 		}
+		if ((i+1)%1024 == 0)
+			printf("%dKB Done\n", (i + 1)/1024);
+		for (int k = 0; k < MIX_TURN; k++) {
+			data[i] = slide(data[i], randomV + k);
+			data[i] = data[i] ^ (randomV + k);
+		}
+		randomUsing++;
+		randomV++;
 	}
 }
 
-unsigned char randoms[RANDOM_USING_COUNT];
 void byteRestorer(char* data, int size) {
+	unsigned char randomV;
+	int randomUsing = 0;
+	randomV = random();
 	for (int i = 0; i < size; i++) {
-		for (int k = 0; k < RANDOM_USING_COUNT; k++)
-			randoms[k] = random();
-		printf("%dByte Done\n", i + 1);
-		for (int k = RANDOM_USING_COUNT - 1; k >= 0;) {
-			data[i] = data[i] ^ randoms[k--];
-			data[i] = deSlide(data[i], randoms[k--]);
+		if (randomUsing == RANDOM_USING_COUNT) {
+			randomUsing = 0;
+			randomV = random();
 		}
+		if ((i + 1) % 1024 == 0)
+			printf("%dKB Done\n", (i + 1) / 1024);
+		for (int k = MIX_TURN - 1; k >= 0; k--) {
+			data[i] = data[i] ^ (randomV + k);
+			data[i] = deSlide(data[i], randomV + k);
+		}
+		randomUsing++;
+		randomV++;
 	}
 }
