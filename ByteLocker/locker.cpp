@@ -16,16 +16,19 @@ unsigned char deSlide(unsigned char a, unsigned char pos) {
 
 const int MIX_TURN = 16;
 const int RANDOM_USING_COUNT = 64;
+int running;
 
 void byteSpliter(char* data, int size) {
 	unsigned char randomV;
 	int randomUsing = 0;
+	running = 0;
 	randomV = random();
 	for (int i = 0; i < size; i++) {
 		if (randomUsing == RANDOM_USING_COUNT) {
 			randomUsing = 0;
 			randomV = random();
 		}
+		randomV += running++;
 		if ((i+1)%1024 == 0)
 			printf("%dKB Done\n", (i + 1)/1024);
 		for (int k = 0; k < MIX_TURN; k++) {
@@ -40,12 +43,14 @@ void byteSpliter(char* data, int size) {
 void byteRestorer(char* data, int size) {
 	unsigned char randomV;
 	int randomUsing = 0;
+	running = 0;
 	randomV = random();
 	for (int i = 0; i < size; i++) {
 		if (randomUsing == RANDOM_USING_COUNT) {
 			randomUsing = 0;
 			randomV = random();
 		}
+		randomV += running++;
 		if ((i + 1) % 1024 == 0)
 			printf("%dKB Done\n", (i + 1) / 1024);
 		for (int k = MIX_TURN - 1; k >= 0; k--) {
